@@ -10,7 +10,9 @@ dependencies:
   - torchaudio=0.7.0
   - cudatoolkit=11.0
   - pytorch-lightning=1.1.0
-  - tensorboard=2.2.1
+  - tensorboard=2.14.0
+  - numpy=1.24.2
+  - protobuf=3.20.3
   - requests
   - tqdm
   - pip
