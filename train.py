@@ -28,14 +28,14 @@ def main(args):
         trainer = Trainer(
             fast_dev_run=bool(args.dev),
             logger=logger if not bool(args.dev + args.test_phase) else None,
-            gpus=args.gpus,
+            accelerator="gpu",
+            devices=-1,
             deterministic=True,
-            weights_summary=None,
+            enable_model_summary=False,
             log_every_n_steps=1,
             max_epochs=args.max_epochs,
-            checkpoint_callback=checkpoint,
+            callbacks=[checkpoint],
             precision=args.precision,
-            distributed_backend="ddp" if int(args.gpus) > 1 else None,
         )
 
         model = GTSRBModule(args)
@@ -48,10 +48,10 @@ def main(args):
             model.model.load_state_dict(torch.load(state_dict))
 
         if bool(args.test_phase):
-            trainer.test(model, data.test_dataloader())
+            trainer.test(model, datamodule=data)
         else:
-            trainer.fit(model, data)
-            trainer.test()
+            trainer.fit(model, datamodule=data)
+            trainer.test(model, datamodule=data, ckpt_path="best")
 
 
 if __name__ == "__main__":
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_phase", type=int, default=0, choices=[0, 1])
     parser.add_argument("--dev", type=int, default=0, choices=[0, 1])
     parser.add_argument(
-        "--logger", type=str, default="tensorboard", choices=["tensorboard", "wandb"]
+        "--logger", type=str, default="wandb", choices=["tensorboard", "wandb"]
     )
 
     # TRAINER args
@@ -74,8 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=256)
     parser.add_argument("--max_epochs", type=int, default=100)
     parser.add_argument("--num_workers", type=int, default=8)
-    parser.add_argument("--gpu_id", type=str, default="0")
-    parser.add_argument("--gpus", type=str, default=1)
+    parser.add_argument("--gpu_id", type=str, default="0,1")
 
     parser.add_argument("--learning_rate", type=float, default=1e-2)
     parser.add_argument("--weight_decay", type=float, default=1e-2)

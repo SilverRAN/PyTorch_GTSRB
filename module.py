@@ -1,6 +1,6 @@
 import pytorch_lightning as pl
 import torch
-from pytorch_lightning.metrics import Accuracy
+from torchmetrics.functional.classification import multiclass_accuracy
 
 from cifar10_models.densenet import densenet121, densenet161, densenet169
 from cifar10_models.googlenet import googlenet
@@ -30,10 +30,9 @@ all_classifiers = {
 class GTSRBModule(pl.LightningModule):
     def __init__(self, hparams):
         super().__init__()
-        self.hparams = hparams
+        self.save_hyperparameters(hparams)
 
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.accuracy = Accuracy()
 
         self.model = all_classifiers[self.hparams.classifier]
 
@@ -41,7 +40,12 @@ class GTSRBModule(pl.LightningModule):
         images, labels = batch
         predictions = self.model(images)
         loss = self.criterion(predictions, labels)
-        accuracy = self.accuracy(predictions, labels)
+        accuracy = multiclass_accuracy(
+            predictions,
+            labels,
+            num_classes=predictions.shape[1],
+            average="micro",
+        )
         return loss, accuracy * 100
 
     def training_step(self, batch, batch_nb):
@@ -67,7 +71,7 @@ class GTSRBModule(pl.LightningModule):
             momentum=0.9,
             nesterov=True,
         )
-        total_steps = self.hparams.max_epochs * len(self.train_dataloader())
+        total_steps = self.trainer.estimated_stepping_batches
         scheduler = {
             "scheduler": WarmupCosineLR(
                 optimizer, warmup_epochs=total_steps * 0.3, max_epochs=total_steps

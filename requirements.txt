@@ -1,0 +1,14 @@
+--index-url https://download.pytorch.org/whl/cu121
+
+torch==2.1.2
+torchvision==0.16.2
+torchaudio==2.1.2
+pytorch-lightning==2.1.2
+torchmetrics==1.2.1
+tensorboard==2.14.0
+numpy==1.26.4
+protobuf==3.20.3
+setuptools==75.1.0
+requests
+tqdm
+wandb
