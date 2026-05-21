@@ -11,23 +11,23 @@ from cifar10_models.vgg import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn
 from schduler import WarmupCosineLR
 
 all_classifiers = {
-    "vgg11_bn": vgg11_bn(),
-    "vgg13_bn": vgg13_bn(),
-    "vgg16_bn": vgg16_bn(),
-    "vgg19_bn": vgg19_bn(),
-    "resnet18": resnet18(),
-    "resnet34": resnet34(),
-    "resnet50": resnet50(),
-    "densenet121": densenet121(),
-    "densenet161": densenet161(),
-    "densenet169": densenet169(),
-    "mobilenet_v2": mobilenet_v2(),
-    "googlenet": googlenet(),
-    "inception_v3": inception_v3(),
+    "vgg11_bn": vgg11_bn(num_classes=43),
+    "vgg13_bn": vgg13_bn(num_classes=43),
+    "vgg16_bn": vgg16_bn(num_classes=43),
+    "vgg19_bn": vgg19_bn(num_classes=43),
+    "resnet18": resnet18(num_classes=43),
+    "resnet34": resnet34(num_classes=43),
+    "resnet50": resnet50(num_classes=43),
+    "densenet121": densenet121(num_classes=43),
+    "densenet161": densenet161(num_classes=43),
+    "densenet169": densenet169(num_classes=43),
+    "mobilenet_v2": mobilenet_v2(num_classes=43),
+    "googlenet": googlenet(num_classes=43),
+    "inception_v3": inception_v3(num_classes=43),
 }
 
 
-class CIFAR10Module(pl.LightningModule):
+class GTSRBModule(pl.LightningModule):
     def __init__(self, hparams):
         super().__init__()
         self.hparams = hparams

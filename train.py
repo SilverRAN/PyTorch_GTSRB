@@ -6,14 +6,14 @@ from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 
-from data import CIFAR10Data
-from module import CIFAR10Module
+from data import GTSRBData
+from module import GTSRBModule
 
 
 def main(args):
 
     if bool(args.download_weights):
-        CIFAR10Data.download_weights()
+        GTSRBData.download_weights()
     else:
         seed_everything(0)
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
@@ -38,8 +38,8 @@ def main(args):
             distributed_backend="ddp" if int(args.gpus) > 1 else None,
         )
 
-        model = CIFAR10Module(args)
-        data = CIFAR10Data(args)
+        model = GTSRBModule(args)
+        data = GTSRBData(args)
 
         if bool(args.pretrained):
             state_dict = os.path.join(
