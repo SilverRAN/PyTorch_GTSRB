@@ -18,16 +18,17 @@ def main(args):
         seed_everything(0)
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
 
+        logger = False
         if args.logger == "wandb":
-            logger = WandbLogger(name=args.classifier, project="cifar10")
+            logger = WandbLogger(name=args.classifier, project="gtsrb")
         elif args.logger == "tensorboard":
-            logger = TensorBoardLogger("cifar10", name=args.classifier)
+            logger = TensorBoardLogger("gtsrb", name=args.classifier)
 
         checkpoint = ModelCheckpoint(monitor="acc/val", mode="max", save_last=False)
 
         trainer = Trainer(
             fast_dev_run=bool(args.dev),
-            logger=logger if not bool(args.dev + args.test_phase) else None,
+            logger=logger if not bool(args.dev + args.test_phase) else False,
             accelerator="gpu",
             devices=-1,
             deterministic=True,
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_phase", type=int, default=0, choices=[0, 1])
     parser.add_argument("--dev", type=int, default=0, choices=[0, 1])
     parser.add_argument(
-        "--logger", type=str, default="wandb", choices=["tensorboard", "wandb"]
+        "--logger", type=str, default="none", choices=["none", "tensorboard", "wandb"]
     )
 
     # TRAINER args
