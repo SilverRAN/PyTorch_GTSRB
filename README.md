@@ -20,11 +20,16 @@ pip install -r requirements.txt
 
 ## How to train models from scratch
 Check the `train.py` to see all available hyper-parameter choices.
-The default training split is still the real GTSRB training data, while
-validation/test and best-checkpoint selection now use the synthetic dataset at
-`../gtsrb_synthetic_dataset/data/synthetic_gtsrb`.
+The default training set concatenates the real GTSRB training split with
+synthetic samples from `../gtsrb_synthetic_dataset/data/synthetic_gtsrb_train`.
+Validation/test and best-checkpoint selection use the synthetic evaluation set
+at `../gtsrb_synthetic_dataset/data/synthetic_gtsrb`.
 
 `python train.py --classifier resnet18 --data_dir ./data/GTSRB`
+
+To train only on the real GTSRB training split, use:
+
+`python train.py --classifier resnet18 --data_dir ./data/GTSRB --use_synthetic_train 0`
 
 To evaluate and save checkpoints against the original GTSRB test split instead,
 use:

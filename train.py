@@ -81,6 +81,19 @@ if __name__ == "__main__":
         help="Synthetic dataset root. Can point to the root containing manifest.csv or directly to images/.",
     )
     parser.add_argument(
+        "--use_synthetic_train",
+        type=int,
+        default=1,
+        choices=[0, 1],
+        help="Whether to concatenate synthetic training samples with the real GTSRB training split.",
+    )
+    parser.add_argument(
+        "--synthetic_train_data_dir",
+        type=str,
+        default="../gtsrb_synthetic_dataset/data/synthetic_gtsrb_train",
+        help="Synthetic training dataset root. Can point to the root containing manifest.csv or directly to images/.",
+    )
+    parser.add_argument(
         "--eval_drop_last",
         type=int,
         default=0,
