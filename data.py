@@ -18,6 +18,9 @@ class GTSRBData(pl.LightningDataModule):
 
         # If you set image size by yourself
         self.img_size = args.img_size if hasattr(args, 'img_size') else 48
+        self.eval_dataset = getattr(args, "eval_dataset", "synthetic")
+        self.eval_data_dir = getattr(args, "eval_data_dir", None)
+        self.eval_drop_last = bool(getattr(args, "eval_drop_last", 0))
 
     def train_dataloader(self):
         transform = T.Compose(
@@ -40,20 +43,47 @@ class GTSRBData(pl.LightningDataModule):
         )
         return dataloader
 
-    def val_dataloader(self):
-        transform = T.Compose(
+    def eval_transform(self):
+        return T.Compose(
             [
                 T.Resize((self.img_size, self.img_size)),
                 T.ToTensor(),
                 # T.Normalize(self.mean, self.std),
             ]
         )
-        dataset = GTSRB(root=self.hparams.data_dir, split="test", transform=transform, download=True)
+
+    def synthetic_eval_dataset(self, transform):
+        if self.eval_data_dir is None:
+            raise ValueError("--eval_data_dir must be set when --eval_dataset synthetic")
+
+        eval_root = os.path.expanduser(self.eval_data_dir)
+        images_root = os.path.join(eval_root, "images")
+        if os.path.isdir(images_root):
+            eval_root = images_root
+
+        dataset = ImageFolder(root=eval_root, transform=transform)
+        expected_class_to_idx = {f"{idx:03d}": idx for idx in range(43)}
+        if dataset.class_to_idx != expected_class_to_idx:
+            raise ValueError(
+                "Synthetic dataset class directories must be zero-padded 000..042 "
+                f"so labels match GTSRB. Got: {dataset.class_to_idx}"
+            )
+        return dataset
+
+    def val_dataloader(self):
+        transform = self.eval_transform()
+        if self.eval_dataset == "synthetic":
+            dataset = self.synthetic_eval_dataset(transform)
+        elif self.eval_dataset == "gtsrb":
+            dataset = GTSRB(root=self.hparams.data_dir, split="test", transform=transform, download=True)
+        else:
+            raise ValueError(f"Unknown eval dataset: {self.eval_dataset}")
+
         dataloader = DataLoader(
             dataset,
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers,
-            drop_last=True,
+            drop_last=self.eval_drop_last,
             pin_memory=True,
         )
         return dataloader

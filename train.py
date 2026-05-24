@@ -24,7 +24,13 @@ def main(args):
         elif args.logger == "tensorboard":
             logger = TensorBoardLogger("gtsrb", name=args.classifier)
 
-        checkpoint = ModelCheckpoint(monitor="acc/val", mode="max", save_last=False)
+        checkpoint = ModelCheckpoint(
+            monitor="val_acc",
+            mode="max",
+            save_last=False,
+            filename="{epoch:02d}-{val_acc:.2f}",
+            auto_insert_metric_name=False,
+        )
 
         trainer = Trainer(
             fast_dev_run=bool(args.dev),
@@ -52,7 +58,8 @@ def main(args):
             trainer.test(model, datamodule=data)
         else:
             trainer.fit(model, datamodule=data)
-            trainer.test(model, datamodule=data, ckpt_path="best")
+            if not bool(args.dev):
+                trainer.test(model, datamodule=data, ckpt_path="best")
 
 
 if __name__ == "__main__":
@@ -60,6 +67,26 @@ if __name__ == "__main__":
 
     # PROGRAM level args
     parser.add_argument("--data_dir", type=str, default="/data/huy/cifar10")
+    parser.add_argument(
+        "--eval_dataset",
+        type=str,
+        default="synthetic",
+        choices=["synthetic", "gtsrb"],
+        help="Dataset used for validation/test and best-checkpoint selection.",
+    )
+    parser.add_argument(
+        "--eval_data_dir",
+        type=str,
+        default="../gtsrb_synthetic_dataset/data/synthetic_gtsrb",
+        help="Synthetic dataset root. Can point to the root containing manifest.csv or directly to images/.",
+    )
+    parser.add_argument(
+        "--eval_drop_last",
+        type=int,
+        default=0,
+        choices=[0, 1],
+        help="Whether validation/test dataloaders drop the last incomplete batch.",
+    )
     parser.add_argument("--download_weights", type=int, default=0, choices=[0, 1])
     parser.add_argument("--test_phase", type=int, default=0, choices=[0, 1])
     parser.add_argument("--dev", type=int, default=0, choices=[0, 1])

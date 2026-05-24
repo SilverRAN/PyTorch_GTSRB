@@ -50,18 +50,21 @@ class GTSRBModule(pl.LightningModule):
 
     def training_step(self, batch, batch_nb):
         loss, accuracy = self.forward(batch)
-        self.log("loss/train", loss)
-        self.log("acc/train", accuracy)
+        batch_size = batch[0].size(0)
+        self.log("loss/train", loss, batch_size=batch_size)
+        self.log("acc/train", accuracy, batch_size=batch_size)
         return loss
 
     def validation_step(self, batch, batch_nb):
         loss, accuracy = self.forward(batch)
-        self.log("loss/val", loss)
-        self.log("acc/val", accuracy)
+        batch_size = batch[0].size(0)
+        self.log("loss/val", loss, batch_size=batch_size)
+        self.log("acc/val", accuracy, batch_size=batch_size)
+        self.log("val_acc", accuracy, batch_size=batch_size)
 
     def test_step(self, batch, batch_nb):
         loss, accuracy = self.forward(batch)
-        self.log("acc/test", accuracy)
+        self.log("acc/test", accuracy, batch_size=batch[0].size(0))
 
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(
