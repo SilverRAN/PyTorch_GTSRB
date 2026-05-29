@@ -66,7 +66,7 @@ if __name__ == "__main__":
     parser = ArgumentParser()
 
     # PROGRAM level args
-    parser.add_argument("--data_dir", type=str, default="/data/huy/cifar10")
+    parser.add_argument("--data_dir", type=str, default="./data/GTSRB")
     parser.add_argument(
         "--eval_dataset",
         type=str,
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--eval_data_dir",
         type=str,
-        default="../gtsrb_synthetic_dataset/data/synthetic_gtsrb",
+        default="./data/synthetic_gtsrb",
         help="Synthetic dataset root. Can point to the root containing manifest.csv or directly to images/.",
     )
     parser.add_argument(
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--synthetic_train_data_dir",
         type=str,
-        default="../gtsrb_synthetic_dataset/data/synthetic_gtsrb_train",
+        default="./data/synthetic_gtsrb_train",
         help="Synthetic training dataset root. Can point to the root containing manifest.csv or directly to images/.",
     )
     parser.add_argument(
